@@ -23,7 +23,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent / "results"))
 from paired import load_splits, reliability  # noqa: E402
 
-SRC = Path("/home/tr4m0ryp/projects/oss/anchorgru/bench/results")
+SRC = Path(__file__).resolve().parents[2] / "bench" / "results"
 OI = {"black": "#000000", "orange": "#E69F00", "sky": "#56B4E9", "green": "#009E73", "blue": "#0072B2",
       "verm": "#D55E00", "purple": "#CC79A7", "yellow": "#F0E442"}
 PANELS = [("synthetic", "1000", "(a) Synthetic, $n$ = 1,000"), ("elec2", "2000", "(b) elec2, $n$ = 2,000"),

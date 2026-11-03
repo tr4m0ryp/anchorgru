@@ -25,7 +25,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from paired import summarise  # noqa: E402
 
-SRC = Path("/home/tr4m0ryp/projects/oss/anchorgru/bench/results")
+SRC = Path(__file__).resolve().parents[2] / "bench" / "results"
 DATASETS = {"synthetic": "Syn", "elec2": "Elec", "physionet2012": "Phys", "physionet2012_strongprior": "PhysStrong",
             "physionet2012_gbmprior": "PhysGbm", "physionet2012_wd10": "PhysWd"}
 SIZES = {250: "CCL", 500: "D", 1000: "M", 2000: "MM", 4000: "MMMM"}

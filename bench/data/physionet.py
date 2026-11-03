@@ -17,7 +17,7 @@ import numpy as np
 URL = "https://physionet.org/files/challenge-2012/1.0.0/"
 SETS = ("a", "b", "c")
 STATIC = ("Age", "Gender", "Height", "ICUType", "Weight")
-CACHE = Path(os.environ.get("ANCHORGRU_DATA", "/home/tr4m0ryp/projects/oss/_data"))
+CACHE = Path(os.environ.get("ANCHORGRU_DATA", Path(__file__).resolve().parents[3] / "_data"))
 
 
 def _get(dirn: Path, name: str) -> Path:
