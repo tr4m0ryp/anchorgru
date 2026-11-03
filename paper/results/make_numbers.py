@@ -137,6 +137,11 @@ def main():
     o.add("NetLr", "8\\times10^{-3}", "bench/common/arms.py NET lr")
     o.add("NetWd", "0.2", "bench/common/arms.py NET weight_decay")
     o.add("ElecOldGbmLL", "0.563 / 0.527", "bench/results/SCOPE.md cuts: first elec2 LightGBM run (12 raw lags), n 500 / 2,000")
+    o.add("Headline", "On the synthetic task at $n=1{,}000$ the anchored model lowers held-out log-loss by "
+          "\\nSynMDabsPrior{} nats (SE \\nSynMSEthreePrior) against the prior, \\nSynMDabsLzero{} "
+          "(SE \\nSynMSEthreeLzero) against the unpenalised residual, \\nSynMDabsUnanch{} (SE \\nSynMSEthreeUnanch) "
+          "against an unanchored GRU and \\nSynMDabsGbm{} (SE \\nSynMSEthreeGbm) against LightGBM boosted from "
+          "the prior", "composed of the SynM macros above (synthetic.json sizes[1000])")
     priv = (a.src / "PRIVATE_LINE.txt").read_text().strip()
     o.add("PrivateLine", priv, "PRIVATE_LINE.txt (the one permitted sentence on the proprietary task)")
     a.out.write_text(o.text())
