@@ -142,6 +142,7 @@ def main():
           "(SE \\nSynMSEthreeLzero) against the unpenalised residual, \\nSynMDabsUnanch{} (SE \\nSynMSEthreeUnanch) "
           "against an unanchored GRU and \\nSynMDabsGbm{} (SE \\nSynMSEthreeGbm) against LightGBM boosted from "
           "the prior", "composed of the SynM macros above (synthetic.json sizes[1000])")
+    settings(o, a.src)
     priv = (a.src / "PRIVATE_LINE.txt").read_text().strip()
     o.add("PrivateLine", priv, "PRIVATE_LINE.txt (the one permitted sentence on the proprietary task)")
     a.out.write_text(o.text())
