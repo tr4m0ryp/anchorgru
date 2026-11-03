@@ -26,9 +26,9 @@ from paired import load_splits, reliability  # noqa: E402
 SRC = Path("/home/tr4m0ryp/projects/oss/anchorgru/bench/results")
 OI = {"black": "#000000", "orange": "#E69F00", "sky": "#56B4E9", "green": "#009E73", "blue": "#0072B2",
       "verm": "#D55E00", "purple": "#CC79A7", "yellow": "#F0E442"}
-PANELS = [("synthetic", "1000", "Synthetic, $n$ = 1,000"), ("elec2", "2000", "elec2, $n$ = 2,000"),
-          ("physionet2012", "2000", "PhysioNet 2012, $n$ = 2,000"),
-          ("physionet2012_gbmprior", "2000", "PhysioNet, strong prior, $n$ = 2,000")]
+PANELS = [("synthetic", "1000", "(a) Synthetic, $n$ = 1,000"), ("elec2", "2000", "(b) elec2, $n$ = 2,000"),
+          ("physionet2012", "2000", "(c) PhysioNet, SAPS-I prior, $n$ = 2,000"),
+          ("physionet2012_gbmprior", "2000", "(d) PhysioNet, strong prior, $n$ = 2,000")]
 ARMS = [("prior", "prior alone"), ("anch_l0", "penalty 0"), ("unanchored", "unanchored GRU"),
         ("gbm_init", "LightGBM from prior")]
 SWEEP = [0.0, 0.1, 0.3, 1.0, 3.0, 10.0]
@@ -39,7 +39,8 @@ plt.rcParams.update({"font.size": 8, "axes.titlesize": 8, "axes.labelsize": 8, "
 
 
 def fig_paired(res, out):
-    fig, axes = plt.subplots(1, 4, figsize=(6.8, 1.9))
+    fig, axes = plt.subplots(2, 2, figsize=(5.5, 3.6))
+    axes = axes.ravel()
     for ax, (ds, size, title) in zip(axes, PANELS):
         diffs = res[ds]["sizes"][size]["diff_log_loss_ours_minus_arm"]
         for i, (arm, _) in enumerate(ARMS):
@@ -47,43 +48,48 @@ def fig_paired(res, out):
             m, se = d["mean"], d["se"]
             col = OI["blue"] if m + 1.96 * se < 0 else (OI["verm"] if m - 1.96 * se > 0 else OI["black"])
             ax.errorbar(m, i, xerr=1.96 * se, fmt="o", ms=3.5, color=col, capsize=2, lw=1.2)
+            if se == 0 and m == 0:
+                ax.annotate("same model", (m, i), xytext=(-4, 0), textcoords="offset points", ha="right",
+                            va="center", fontsize=6.5, color="0.3")
         ax.axvline(0, color="0.5", lw=0.7, ls="--")
         ax.set_yticks(range(len(ARMS)))
-        ax.set_yticklabels([a[1] for a in ARMS] if ax is axes[0] else [])
+        ax.set_yticklabels([a[1] for a in ARMS] if ax in (axes[0], axes[2]) else [])
         ax.set_ylim(len(ARMS) - 0.5, -0.5)
         ax.set_title(title)
-        ax.set_xlabel("ours $-$ arm (nats)")
+        if ax in (axes[2], axes[3]):
+            ax.set_xlabel("ours $-$ arm, held-out log-loss (nats)")
         ax.ticklabel_format(axis="x", style="plain")
         ax.locator_params(axis="x", nbins=4)
-    fig.tight_layout(w_pad=0.6)
+    fig.tight_layout(w_pad=0.8, h_pad=0.8)
     fig.savefig(out)
     plt.close(fig)
 
 
 def fig_sweep(res, out):
-    sets = [("synthetic", "Synthetic"), ("elec2", "elec2"), ("physionet2012", "PhysioNet 2012"),
-            ("physionet2012_gbmprior", "PhysioNet, strong prior")]
+    sets = [("synthetic", "(a) Synthetic"), ("elec2", "(b) elec2"), ("physionet2012", "(c) PhysioNet 2012, SAPS-I prior"),
+            ("physionet2012_gbmprior", "(d) PhysioNet 2012, strong prior")]
     cols = [OI["orange"], OI["blue"], OI["green"]]
     xs = np.arange(len(SWEEP))
-    fig, axes = plt.subplots(1, 4, figsize=(6.8, 2.0))
+    fig, axes = plt.subplots(2, 2, figsize=(5.5, 3.9))
+    axes = axes.ravel()
     for ax, (ds, title) in zip(axes, sets):
         for c, (size, s) in zip(cols, res[ds]["sizes"].items()):
             met = s["metrics"]
             base = met["prior"]["log_loss"]
             y = [met[f"anch_l{lam:g}"]["log_loss"] - base for lam in SWEEP]
             ax.plot(xs, y, "-o", ms=2.5, color=c, lw=1.1, label=f"$n$ = {int(size):,}")
-            lam = s["lam_star_per_split"]
             ours = met["ours"]["log_loss"] - base
             ax.plot([xs[-1] + 0.9], [ours], marker="*", ms=6, color=c, ls="none")
         ax.axhline(0, color="0.5", lw=0.7, ls="--")
         ax.set_xticks(list(xs) + [xs[-1] + 0.9])
         ax.set_xticklabels([f"{v:g}" for v in SWEEP] + ["ours"], rotation=0)
         ax.set_title(title)
-        ax.set_xlabel(r"penalty $\lambda$")
-        if ax is axes[0]:
+        if ax in (axes[2], axes[3]):
+            ax.set_xlabel(r"penalty $\lambda$ (fixed), or ours (chosen per split)")
+        if ax in (axes[0], axes[2]):
             ax.set_ylabel("log-loss $-$ prior's (nats)")
         ax.legend(frameon=False, loc="best", handlelength=1.2)
-    fig.tight_layout(w_pad=0.5)
+    fig.tight_layout(w_pad=0.8, h_pad=0.8)
     fig.savefig(out)
     plt.close(fig)
 
