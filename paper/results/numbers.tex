@@ -3941,5 +3941,91 @@
 \newcommand{\nElecOldGbmLL}{0.563 / 0.527}
 % composed of the SynM macros above (synthetic.json sizes[1000])
 \newcommand{\nHeadline}{On the synthetic task at $n=1{,}000$ the anchored model lowers held-out log-loss by \nSynMDabsPrior{} nats (SE \nSynMSEthreePrior) against the prior, \nSynMDabsLzero{} (SE \nSynMSEthreeLzero) against the unpenalised residual, \nSynMDabsUnanch{} (SE \nSynMSEthreeUnanch) against an unanchored GRU and \nSynMDabsGbm{} (SE \nSynMSEthreeGbm) against LightGBM boosted from the prior}
+% bench/common/runner.py training sizes (learning curve)
+\newcommand{\nSizeCCL}{250}
+% bench/common/runner.py training sizes (learning curve)
+\newcommand{\nSizeD}{500}
+% bench/common/runner.py training sizes (learning curve)
+\newcommand{\nSizeM}{1{,}000}
+% bench/common/runner.py training sizes (learning curve)
+\newcommand{\nSizeMM}{2{,}000}
+% bench/common/runner.py training sizes (learning curve)
+\newcommand{\nSizeMMMM}{4{,}000}
+% synthetic.json settings.epochs_by_size[250]
+\newcommand{\nSynCCLEpochs}{150}
+% synthetic.json settings.epochs_by_size[1000]
+\newcommand{\nSynMEpochs}{60}
+% synthetic.json settings.epochs_by_size[4000]
+\newcommand{\nSynMMMMEpochs}{20}
+% elec2.json settings.epochs_by_size[500]
+\newcommand{\nElecDEpochs}{100}
+% elec2.json settings.epochs_by_size[2000]
+\newcommand{\nElecMMEpochs}{30}
+% physionet2012.json settings.epochs_by_size[500]
+\newcommand{\nPhysDEpochs}{100}
+% physionet2012.json settings.epochs_by_size[2000]
+\newcommand{\nPhysMMEpochs}{30}
+% physionet2012.json settings.batch_size
+\newcommand{\nBatch}{128}
+% physionet2012.json settings.stride
+\newcommand{\nStride}{2}
+% physionet2012.json settings.n_pool
+\newcommand{\nPhysPool}{8{,}000}
+% bench/results/SCOPE.md: 48 h hourly grid
+\newcommand{\nPhysHours}{48}
+% bench/results/SCOPE.md: 36 variables
+\newcommand{\nPhysVars}{36}
+% elec2.json settings.window (half-hour steps)
+\newcommand{\nElecWindow}{48}
+% bench/results/SCOPE.md: last 48 half-hours of 5 columns
+\newcommand{\nElecCols}{5}
+% elec2.json settings.embargo_rows (= bootstrap block, one week)
+\newcommand{\nElecBlock}{336}
+% elec2.json settings.prior_rows
+\newcommand{\nElecPriorRows}{2{,}000}
+% elec2.json settings.test_len (per fold)
+\newcommand{\nElecTestLen}{4{,}000}
+% results/paired.py block_se draws (= benchmark runner)
+\newcommand{\nBootDraws}{2{,}000}
+% bench/results/SCOPE.md: 3 random-walk channels
+\newcommand{\nSynChannels}{3}
+% bench/results/SCOPE.md: 24 steps
+\newcommand{\nSynSteps}{24}
+% bench/results/SCOPE.md: 20 % missing
+\newcommand{\nSynMissPct}{20}
+% bench/results/SCOPE.md keep rule: more than 2 SE
+\newcommand{\nKeepSE}{2}
+% bench/common/arms.py inner holdout, 80 / 20
+\newcommand{\nInnerPct}{20}
+% bench/common/arms.py inner holdout, 80 / 20
+\newcommand{\nInnerTrainPct}{80}
+% anchorgru/windows/encode.py min_observed default
+\newcommand{\nMinObs}{0.25}
+% anchorgru/net/train.py default n_seeds
+\newcommand{\nDefSeeds}{5}
+% anchorgru/net/train.py default n_bags
+\newcommand{\nDefBags}{3}
+% anchorgru/net/train.py TrainConfig cap default
+\newcommand{\nDefCap}{2.0}
+% figures/make.py: +-1.96 SE
+\newcommand{\nCIpct}{95}
+% figures/make.py: +-1.96 SE
+\newcommand{\nCIz}{1.96}
+% figures/make.py fig_reliability bins
+\newcommand{\nRelBins}{15}
+% bench/common/arms.py _gbm learning_rate
+\newcommand{\nGbmLr}{0.05}
+% bench/common/arms.py _gbm num_leaves
+\newcommand{\nGbmLeaves}{15}
+% bench/common/arms.py _gbm n_estimators cap
+\newcommand{\nGbmMaxRounds}{1{,}000}
+% bench/common/arms.py _gbm early_stopping
+\newcommand{\nGbmStop}{50}
+% bench/results/SCOPE.md: 2 worker processes of 1 thread
+\newcommand{\nWorkers}{2}
+% bench/results/SCOPE.md: 3 repeats per size
+\newcommand{\nSplitCount}{3}
+% git rev-parse --short HEAD of the anchorgru repository
+\newcommand{\nCommit}{\texttt{0919472}}
 % PRIVATE_LINE.txt (the one permitted sentence on the proprietary task)
 \newcommand{\nPrivateLine}{On a proprietary binary forecasting task (about a thousand held-out cases), the unpenalised residual variant degraded its prior's held-out log-loss by 0.0060 nats (paired block-bootstrap SE 0.0030). The output-space penalty removed that degradation (penalised model minus prior: -0.0001 nats, SE 0.0007), halved the seed-to-seed spread of predicted probabilities (0.008 to 0.004) and lowered ECE from 0.023 to 0.014. The residual did not beat the prior by a significant margin on that task.}
