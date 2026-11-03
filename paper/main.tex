@@ -35,9 +35,8 @@
 
 \author{%
   Moussa Ouallaf \\
-  Informatics Institute \\
-  University of Amsterdam \\
-  \texttt{uva.cavum@gmail.com} \\
+  Husimi.ai \\
+  \texttt{moussa@husimi.ai} \\
 }
 
 \begin{document}
@@ -47,15 +46,16 @@
 \begin{abstract}
 A prior probability for a binary outcome often exists, and a recurrent network trained freely on each example's
 history can end up worse than it. We add the network's output to the prior's log-odds as a bounded offset whose
-output layer starts at zero, and penalise the squared offset itself, with a strength picked on an inner holdout. On a
-synthetic task with a known answer (\nSizeM{} training and \nSynMNtest{} test rows), held-out log-loss falls by
-\nSynMDabsfourPrior{} nats (SE \nSynMSEPrior) against the prior alone, \nSynMDabsfourLzero{} (SE \nSynMSELzero)
-against the same model without the penalty and \nSynMDabsfourUnanch{} (SE \nSynMSEUnanch) against an unanchored
-recurrent network, the one setting where it beats every arm by more than \nKeepSE{} SE. On ICU mortality it loses
-to boosted trees started from the prior by \nPhysMMDabsfourGbm{} nats; under a boosted-tree prior it only ties the
-prior, while the unpenalised model is \nPhysGbmMMDabsfourLzero{} nats worse. Differences are paired on fixed test
-sets of \nPhysMMNtest{} to \nElecMMNtest{} rows over \nSplitCount{} training subsamples; standard errors are over
-test examples.
+output layer starts at zero, and penalise the squared offset itself, with a strength picked on an inner holdout. On
+elec2 the prior is weak, a logistic fit on the current row (log-loss \nElecMMPriorLL{} against \nElecConstLL{} for
+a constant), and the model beats boosted trees started from the same prior by \nElecDDabsGbm{} and
+\nElecMMDabsGbm{} nats at 500 and 2,000 training rows; there the holdout mostly switches the penalty off, so that gain belongs to the anchored
+residual, not to the penalty. On ICU mortality the same trees beat it by \nPhysDDabsGbm{} and \nPhysMMDabsGbm{}
+nats. What the penalty buys is no harm: without it the residual scores \nPhysDLzeroLL{} on ICU mortality against
+the prior's \nPhysDPriorLL; with it the model beats or ties its prior in \nPriorNoLoss{} of \nPriorSettings{} settings
+and loses the last by \nPhysStrongDDabsfourPrior{} nats. It beats every arm by more than \nKeepSE{} SE in one
+setting only, a synthetic task. Differences are paired on fixed test sets of \nPhysMMNtest{} to \nElecMMNtest{}
+rows; standard errors are over test examples (a block bootstrap on elec2).
 \end{abstract}
 
 \section{Problem}
@@ -70,8 +70,8 @@ On ICU mortality with \nSizeD{} training stays, a recurrent network that gets th
 as an input scores a held-out log-loss of \nPhysDUnanchLL{} nats; the prior alone scores \nPhysDPriorLL. The usual
 fix is a residual on the prior's log-odds, as in residual policy learning
 \citep{silver2018residual,johannink2019residual} and residual physics \citep{zeng2020tossingbot}. That alone is
-insufficient: the same residual without a penalty scores \nPhysDLzeroLL, still worse than the prior. Weight decay does not bound
-it either: Adam scales each step by the gradient's own size, so with decay \nNetWd{} the head still sits at its bound
+insufficient: the same residual without a penalty scores \nPhysDLzeroLL, still worse than the prior. Weight decay at
+our setting does not bound it either: Adam scales each step by the gradient's own size, so with decay \nNetWd{} the head still sits at its bound
 on \nPhysDLzeroAtCap\% of training rows. We want a correction that stays near the prior unless the data argue
 otherwise.
 
@@ -179,16 +179,22 @@ tie inside one SE.
 \label{sec:results}
 
 Table~\ref{tab:main} lists every setting. Ours beats the prior everywhere except synthetic $n = \nSizeCCL$, a tie
-(\nSynCCLDPrior, SE \nSynCCLSEPrior). The margin over penalty 0 is widest where penalty 0 overfits: \nPhysDDabsLzero{}
-nats on PhysioNet at $n = \nSizeD$, where penalty 0 even falls behind the prior. When the sequence carries strong
+(\nSynCCLDPrior, SE \nSynCCLSEPrior). The margin over penalty 0 is widest where penalty 0 overfits and falls behind the prior
+itself: \nSynCCLDabsLzero{} nats at synthetic $n = \nSizeCCL$ and \nPhysDDabsLzero{} on PhysioNet at $n = \nSizeD$. When the sequence carries strong
 signal (elec2 at \nSizeMM, synthetic at \nSizeMMMM) the holdout picks $\lambda = 0$, so ours and penalty 0 coincide.
 The unanchored GRU loses in every row, by \nElecDDabsUnanch{} nats at elec2 $n = \nSizeD$ but by just
 \nSynMMMMDabsUnanch{} at synthetic $n = \nSizeMMMM$, right on the boundary.
 
+The elec2 gain needs care. Its label is defined from the price over the last day, which the sequence holds and the
+current-row prior never sees, so the prior is weak (AUC \nElecDPriorAUC, ECE \nElecDPriorECE). The fair comparison is the tree arm, which gets the same prior and the same steps: ours
+beats it by \nElecDDabsGbm{} (SE \nElecDSEGbm) and \nElecMMDabsGbm{} (SE \nElecMMSEGbm) nats. The holdout chose
+$\lambda = 0$ on five of six elec2 subsamples, so the penalty adds little here, and the pre-registered ablation
+penalty 0 with \nWdMult{} times the weight decay beats ours at $n = \nSizeD$ by \nElecDDabsWdTen{} (SE \nElecDSEWdTen).
+
 \begin{table}[H]
 \centering
-\caption{The anchored model beats the prior and both recurrent arms almost everywhere, and boosted trees on
-PhysioNet beat it. Held-out log-loss (nats) and paired differences ours $-$ arm with SE; negative favours ours; bold
+\caption{The anchored model beats the prior in six of seven rows and the unanchored GRU in all; boosted trees
+from the prior lose on synthetic and elec2 and win on PhysioNet. Held-out log-loss (nats) and paired differences ours $-$ arm with SE; negative favours ours; bold
 marks a win or loss beyond \nKeepSE{} SE. $\lambda^{*}$ lists the penalty the inner holdout chose on each training
 subsample.}
 \label{tab:main}
@@ -210,32 +216,23 @@ PhysioNet & \nSizeMM & \nPhysMMPriorLL & \nPhysMMOursLL & \pw{\nPhysMMDPrior}{\n
 \end{table}
 
 Our pre-registered keep rule demands a win over all four arms, each beyond \nKeepSE{} SE. Only synthetic
-$n = \nSizeM$ passes (Figure~\ref{fig:paired}a). Elec2 misses on penalty 0 alone: \nElecDDLzero{} (SE \nElecDSELzero)
+$n = \nSizeM$ passes (Figure~\ref{fig:paired}a, Appendix~\ref{app:extra}). Elec2 misses on penalty 0 alone: \nElecDDLzero{} (SE \nElecDSELzero)
 at $n = \nSizeD$, just short of the bar, and at $n = \nSizeMM$ the holdout chose penalty 0 itself. On PhysioNet the
-trees win by \nPhysDDabsGbm{} and \nPhysMMDabsGbm{} nats; per-variable summaries read an irregular clinical grid
-better than our small GRU.
+trees win by \nPhysDDabsGbm{} and \nPhysMMDabsGbm{} nats; on this data per-variable summaries read the irregular
+clinical grid better than our small GRU.
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.64\linewidth]{figures/fig1_paired.pdf}
-\caption{Ours beats every arm on synthetic $n = \nSizeM$, loses only to boosted trees on PhysioNet, and ties a
-strong prior. Paired difference ours $-$ arm with \nCIpct\% interval ($\pm \nCIz$ SE); blue left of zero favours
-ours, orange right of zero favours the arm, black overlaps zero. Panel (d) uses the strong prior described in the
-text.}
-\label{fig:paired}
-\end{figure}
 
-Figure~\ref{fig:sweep} exposes the mechanism. At $\lambda = 0$ the model lands above the prior on PhysioNet and on
+Figure~\ref{fig:sweep} shows what the penalty does. At $\lambda = 0$ the model lands above the prior on PhysioNet and on
 synthetic $n = \nSizeCCL$; a moderate $\lambda$ pulls it back to or below the prior. The best fixed strength drifts
 with $n$ and with the sequence's signal, and on elec2 any positive $\lambda$ costs log-loss. So we choose it per
-split. That choice has a price. At synthetic $n = \nSizeCCL$ the inner holdout holds only a few dozen rows, picks a
+split, at a price: at synthetic $n = \nSizeCCL$ the inner holdout holds only a few dozen rows, picks a
 weak $\lambda$, and the row ends as a tie.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.62\linewidth]{figures/fig2_sweep.pdf}
-\caption{In these four settings the penalty turns a residual that hurts the prior into one that matches or beats
-it, and the best strength depends on the data. Held-out log-loss minus the prior's against a fixed $\lambda$; the star is ours with $\lambda$ chosen
+\includegraphics[width=0.56\linewidth]{figures/fig2_sweep.pdf}
+\caption{On PhysioNet and synthetic $n = \nSizeCCL$ the penalty turns a residual that hurts the prior into one
+that matches or beats it; on elec2 any positive $\lambda$ costs log-loss. Held-out log-loss minus the prior's against a fixed $\lambda$; the star is ours with $\lambda$ chosen
 on the inner holdout; below the dashed line beats the prior.}
 \label{fig:sweep}
 \end{figure}
@@ -262,18 +259,21 @@ The complete win holds in a single setting. On PhysioNet the boosted trees remai
 \nWdMult{} times the weight decay, improves ours
 (\nPhysWdMMOursLL{} at \nSizeMM) but helps the unanchored GRU more (\nPhysWdMMUnanchLL): cap and penalty hold the
 model near a weak anchor. With a prior that cannot see the second day, ours is worse than the prior at
-$n = \nSizeD$ (\nPhysStrongDDPrior, SE \nPhysStrongDSEPrior); nowhere else does it lose to its prior.
+$n = \nSizeD$ (\nPhysStrongDDPrior, SE \nPhysStrongDSEPrior); nowhere else does it lose to its prior. The large
+elec2 gain rests on a weak prior and on the residual, not the penalty, and plain heavy weight decay is a strong
+competitor (Appendix~\ref{app:extra}). Penalising the head's pre-activation instead of the offset, a variant we
+tested separately, also steadied the heads but did not beat the plain bounded residual on PhysioNet.
 
 These variants are post hoc, chosen after the PhysioNet result. The arms, the \nSweepCount-value sweep, the
 \nAblationCount{} ablations, the sizes and the keep rule were fixed before any run. One fix came after a run: the
-first elec2 tree arm saw a shorter lag window (log-loss \nElecOldGbmLL); we report the rerun.
+first elec2 tree arm saw a shorter lag window (log-loss \nElecOldGbmLL); we report the stronger rerun.
 
 Our SE covers test-sample noise only. Taken over the \nSplitCount{} training subsamples, the SE of synthetic
 $n = \nSizeM$ against penalty 0 grows from \nSynMSELzero{} to \nSynMSEsplitLzero, which puts that win on the
 \nKeepSE{} SE boundary. Each arm is a single network rather than the package default of \nDefSeeds{} seeds by \nDefBags{}
 bootstrap resamples. We dropped full-size training (compute), a GRU-D arm (library unavailable), an ablation without
-the mask channels and a weather task (no data access). We claim no finite-sample guarantee, no advantage over boosted trees on tabular summaries, and no novelty
-for the zero start or the cap.
+the mask channels and a weather task (no data access). We claim nothing beyond the three tasks tested, no finite-sample
+guarantee, no edge over boosted trees on summaries and no novelty for the zero start or the cap.
 
 \bibliographystyle{plainnat}
 \bibliography{refs}
@@ -338,10 +338,20 @@ and approaches the endpoint on the side of $r^{*}$ otherwise. The sign is kept a
 \section{Ablations and variants}
 \label{app:extra}
 
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.64\linewidth]{figures/fig1_paired.pdf}
+\caption{Ours beats every arm on synthetic $n = \nSizeM$, beats the prior and the trees on elec2 (where penalty 0
+is the same model), loses to the trees on PhysioNet and ties a strong prior. Paired difference ours $-$ arm with \nCIpct\% interval ($\pm \nCIz$ SE); blue left of zero favours
+ours, orange right of zero favours the arm, black overlaps zero. Panel (d) uses the strong prior described in the
+text.}
+\label{fig:paired}
+\end{figure}
+
 Table~\ref{tab:abl} removes one part of ours at a time. The validity gate and the cap barely matter on PhysioNet and
 the synthetic task; on elec2 the cap matters at $n = \nSizeD$ (removing it costs \nElecDDabsNoCap{} nats). A random
-head start is mixed. Penalty 0 with \nWdMult{} times the weight decay is the strongest network in several rows, which is
-what motivated the weight-decay variant.
+head start is mixed. Penalty 0 with \nWdMult{} times the weight decay beats ours in four of seven rows (synthetic \nSizeCCL{} and
+\nSizeM, elec2 \nSizeD, PhysioNet \nSizeMM), which is what motivated the weight-decay variant.
 
 \begin{table}[H]
 \centering
@@ -374,7 +384,7 @@ times the weight decay for every network (V3), the unanchored GRU overtakes ours
 \begin{table}[H]
 \centering
 \caption{None of the post-hoc variants beats boosted trees from the prior; under a strong prior the penalty keeps the
-model at the prior. Paired difference ours $-$ arm (SE), bold beyond \nKeepSE{} SE.}
+model within \nPhysStrongDDabsfourPrior{} nats of the prior. Paired difference ours $-$ arm (SE), bold beyond \nKeepSE{} SE.}
 \label{tab:var}
 \small
 \resizebox{\textwidth}{!}{%
@@ -401,7 +411,7 @@ the diagonal, while ours stays on the prior's curve.
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.7\linewidth]{figures/fig3_reliability.pdf}
-\caption{Without the penalty the residual is badly calibrated at small $n$; with it, calibration matches the prior.
+\caption{Without the penalty the residual is badly calibrated at small $n$; with it, calibration is close to the prior's.
 Reliability diagram, \nRelBins{} equal-width bins of pooled test predictions. ECE in the legend is computed on the
 pooled predictions, so it differs slightly from the per-split means in Table~\ref{tab:abl}.}
 \label{fig:rel}

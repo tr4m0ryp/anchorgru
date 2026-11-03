@@ -54,13 +54,13 @@ elec2 7.1 min, synthetic 15.5 min, V1 6.0 min, V2 7.5 min, V3 7.3 min; **59 min 
 | PhysioNet, 2,000 | 0.3811 | 0.3960 | **-0.0150 (0.0017)** | **-0.0913 (0.0076)** | **-0.0585 (0.0105)** | +0.0726 (0.0047) lost |
 | elec2, 500 | 0.3291 | 0.5598 | **-0.2307 (0.0263)** | -0.0173 (0.0087) | **-0.9692 (0.0918)** | **-0.1738 (0.0269)** |
 | elec2, 2,000 | 0.2151 | 0.5598 | **-0.3447 (0.0205)** | 0 (same model) | **-0.3301 (0.0343)** | **-0.2416 (0.0353)** |
-| synthetic, 250 | 0.5940 | 0.5954 | -0.0015 (0.0029) tie | **-0.2341 (0.0079)** | **-0.3308 (0.0098)** | -0.0062 (0.0030) |
+| synthetic, 250 | 0.5940 | 0.5954 | -0.0015 (0.0029) tie | **-0.2341 (0.0079)** | **-0.3308 (0.0098)** | **-0.0062 (0.0030)** |
 | synthetic, 1,000 | 0.5514 | 0.5954 | **-0.0440 (0.0042)** | **-0.0080 (0.0024)** | **-0.0695 (0.0056)** | **-0.0294 (0.0035)** |
-| synthetic, 4,000 | 0.5251 | 0.5954 | **-0.0703 (0.0047)** | 0 (same model) | -0.0038 (0.0019) tie | **-0.0264 (0.0030)** |
+| synthetic, 4,000 | 0.5251 | 0.5954 | **-0.0703 (0.0047)** | 0 (same model) | **-0.0038 (0.0019)** (2.0 SE, on the boundary) | **-0.0264 (0.0030)** |
 
 Bayes log-loss of the synthetic task: 0.5044. The pre-registered keep rule (ours beats prior, penalty 0, unanchored
 and LightGBM-from-prior, each by more than 2 SE) is met on **synthetic n = 1,000 only**. On elec2 it misses only
-against penalty 0 (n = 500: 2.0 SE; n = 2,000: the inner holdout chose penalty 0 itself).
+against penalty 0 (n = 500: 1.99 SE; n = 2,000: the inner holdout chose penalty 0 itself).
 
 **Penalty 0 versus the penalty (claim a, no harm):** the unpenalised residual saturates its cap on 44-90 % of
 training rows at the smallest n and its seed spread of p is 6-10x the penalised one (PhysioNet 0.099 vs 0.014,

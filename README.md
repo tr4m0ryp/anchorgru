@@ -7,11 +7,12 @@
   <a href="paper/anchorgru.pdf"><img alt="Paper PDF" src="https://img.shields.io/badge/Paper-PDF-b31b1b?logo=adobeacrobatreader&logoColor=white"></a>
 </p>
 
-A small GRU that only adds a bounded, penalised log-odds correction to an existing probability cut held-out log-loss
-by **0.34 nats (SE 0.02) on elec2 and beat LightGBM boosted from the same prior by 0.24 (SE 0.04)**, while the
-penalty is what keeps it from hurting a good prior: without it the same network is **0.11 nats worse than the prior
-on PhysioNet ICU mortality**, with it the model beats or ties its prior in 12 of 13 settings and loses the last by
-0.0017 nats.
+A small GRU that only adds a bounded, penalised log-odds correction to an existing probability **beat LightGBM
+boosted from the same prior by 0.17 and 0.24 nats (SE 0.03, 0.04) on elec2**, where the prior is weak (a
+current-row logistic fit, log-loss 0.56 against 0.67 for a constant). On **PhysioNet ICU mortality LightGBM from the
+prior beats it by 0.05 and 0.07 nats**. The penalty's job is no harm: without it the same network is **0.11 nats
+worse than the prior** on PhysioNet; with it the model beats or ties its prior in 12 of 13 settings and loses the
+last by 0.0017 nats.
 
 ```bash
 pip install git+https://github.com/tr4m0ryp/anchorgru
@@ -49,18 +50,19 @@ correction off and the prior comes back.
 
 The part that matters most is the **penalty**. Training minimises the usual cross-entropy plus `lambda` times the
 mean squared correction. Weight decay shrinks the network's weights; this penalty shrinks the network's *answer*,
-the distance from the prior, directly. A correction has to earn its size with evidence. Mathematically, for each input
-the best penalised correction points in the right direction but always stops short of the full move, and it is zero
+the distance from the prior, directly. A correction has to earn its size with evidence. Mathematically, at the population level, for
+each input the best penalised correction points in the right direction but always stops short of the full move, and it is zero
 where the prior is already calibrated.
 
 `lambda` is picked on a held-out 20 % of the training rows from 0, 0.1, 0.3, 1, 3 and 10. When the history carries a
-lot of signal (elec2), the holdout picks 0 and the network is free. When it carries little (ICU mortality), it picks
+lot of signal (elec2), the holdout picks 0 (once 0.1) and the network is free. When it carries little (ICU mortality), it picks
 0.3 or 1 and the model stays close to the prior.
 
-What we found: the penalty removes the failure mode of plain residual networks (being worse than the prior they
-started from) and makes them far more stable across random seeds. Where the sequence holds information the prior
-lacks, the gain is large. On irregular clinical data, boosted trees on per-variable summaries still read the history
-better than this small GRU.
+What we found: the penalty nearly removes the failure mode of plain residual networks (being worse than the prior
+they started from: one loss of 0.0017 nats in 13 settings) and makes them far more stable across random seeds. On
+elec2, where the sequence holds what the weak prior lacks, the gain is large, but it comes from the anchored
+residual: the holdout turns the penalty off there. On PhysioNet, boosted trees on per-variable summaries read the
+history better than this small GRU.
 
 ```mermaid
 flowchart LR
@@ -145,23 +147,31 @@ with one-week blocks (336 rows, 2,000 draws). Negative favours ours; **bold** is
 |---|---|---|---|---|---|---|
 | Synthetic, 250 | 0.5954 | 0.5940 | -0.0015 (0.0029) | **-0.2341 (0.0079)** | **-0.3308 (0.0098)** | **-0.0062 (0.0030)** |
 | Synthetic, 1,000 | 0.5954 | 0.5514 | **-0.0440 (0.0042)** | **-0.0080 (0.0024)** | **-0.0695 (0.0056)** | **-0.0294 (0.0035)** |
-| Synthetic, 4,000 | 0.5954 | 0.5251 | **-0.0703 (0.0047)** | same model | -0.0038 (0.0019) | **-0.0264 (0.0030)** |
+| Synthetic, 4,000 | 0.5954 | 0.5251 | **-0.0703 (0.0047)** | same model | **-0.0038 (0.0019)** | **-0.0264 (0.0030)** |
 | elec2, 500 | 0.5598 | 0.3291 | **-0.2307 (0.0263)** | -0.0173 (0.0087) | **-0.9692 (0.0918)** | **-0.1738 (0.0269)** |
 | elec2, 2,000 | 0.5598 | 0.2151 | **-0.3447 (0.0205)** | same model | **-0.3301 (0.0343)** | **-0.2416 (0.0353)** |
 | PhysioNet, 500 | 0.3960 | 0.3916 | **-0.0045 (0.0007)** | **-0.1148 (0.0083)** | **-0.3074 (0.0170)** | **+0.0471 (0.0030)** |
 | PhysioNet, 2,000 | 0.3960 | 0.3811 | **-0.0150 (0.0017)** | **-0.0913 (0.0076)** | **-0.0585 (0.0105)** | **+0.0726 (0.0047)** |
 
 Held-out log-loss in nats; SE in brackets. "Same model" means the inner holdout chose $`\lambda = 0`$ on every
-subsample. The pre-registered keep rule (a win over all four arms, each beyond 2 SE) holds on synthetic n = 1,000;
-elec2 misses only on penalty 0. On PhysioNet the trees win.
+subsample. The pre-registered keep rule (a win over all four arms, each beyond 2 SE) holds on synthetic n = 1,000
+only; elec2 misses only on penalty 0 (n = 500: 1.99 SE; n = 2,000: the same model). On PhysioNet the trees win.
+
+**The elec2 gain needs care.** Its label is defined from the price over the last day, which the sequence holds and
+the current-row prior never sees, so the prior is weak (AUC 0.81, ECE 0.094, log-loss 0.56 against 0.67 for a
+constant). The fair comparison is LightGBM from the same prior on the same steps: ours wins by 0.17 and 0.24 nats.
+The holdout chose penalty 0 on 5 of 6 elec2 subsamples, so the penalty adds little there, and the pre-registered
+ablation penalty 0 with 10x weight decay beats ours at n = 500 by 0.030 (SE 0.012).
 
 <p align="center"><img src="docs/figures/fig1_paired.png" width="85%" alt="Paired differences ours minus each arm"></p>
 
 Paired difference ours minus arm with a 95 % interval. Blue left of zero favours ours, orange right of zero favours
-the arm. Panel (d) uses a strong prior: LightGBM on all 48 h summaries.
+the arm. Panel (b): on elec2 at n = 2,000 penalty 0 is the same model. Panel (d) uses a strong prior: LightGBM on
+all 48 h summaries.
 
-**The penalty is the mechanism.** At $`\lambda = 0`$ the model lands above the prior on PhysioNet and on synthetic
-n = 250; a moderate $`\lambda`$ pulls it back to or below the prior. The best strength drifts with n and with how much
+**The penalty is what prevents harm.** At $`\lambda = 0`$ the model lands above the prior on PhysioNet and on
+synthetic n = 250; a moderate $`\lambda`$ pulls it back to or below the prior. On elec2 any positive $`\lambda`$
+costs log-loss. The best strength drifts with n and with how much
 signal the sequence holds, which is why it is chosen per split.
 
 <p align="center"><img src="docs/figures/fig2_sweep.png" width="85%" alt="Log-loss against the penalty strength"></p>
@@ -185,9 +195,11 @@ training rows. Moving $`\lambda`$ from 0 to 1 cuts the seed-to-seed spread of pr
 - **You have a probability per example and a history window per example:** fit `AnchoredGRUClassifier` with
   `prior=`; let the inner holdout pick `penalty`. The prior must not have seen the row's label: fit it out of fold
   on your training rows, or the network learns to undo the prior's overfit.
-- **The history carries signal the prior lacks** (elec2): expect large gains; the holdout will free the network.
-- **The prior is already strong or the history is irregular tabular data:** expect a tie with the prior, not a loss.
-  Also try LightGBM with `init_score` set to the prior's log-odds on per-variable summaries; on PhysioNet it won.
+- **The history carries signal the prior lacks** (elec2): the gain there was large and the holdout freed the
+  network. Compare against LightGBM from the same prior and against plain heavy weight decay before trusting it.
+- **The prior is already strong or the history is irregular tabular data:** in our runs ours tied the prior, with
+  one small loss (0.0017 nats). Also try LightGBM with `init_score` set to the prior's log-odds on per-variable
+  summaries; on PhysioNet it won.
 
 ## Limits
 
@@ -198,6 +210,11 @@ training rows. Moving $`\lambda`$ from 0 to 1 cuts the seed-to-seed spread of pr
   the model near a weak prior.
 - **One small loss to the prior:** with a prior that cannot see the second day, ours is worse at n = 500 by 0.0017
   (SE 0.0008).
+- **The elec2 gain rests on a weak prior and on the residual, not the penalty.** Penalty 0 with 10x weight decay,
+  a pre-registered ablation, beats ours on 4 of 7 main rows (synthetic 250 and 1,000, elec2 500, PhysioNet 2,000).
+- **Penalising the pre-activation instead:** a variant we tested separately (the head's pre-activation penalised
+  instead of the offset) also steadied the heads but did not beat the plain bounded residual on PhysioNet.
+- **Three tasks only.** Nothing here is claimed beyond synthetic, elec2 and PhysioNet 2012.
 - **The SE covers test-sample noise only.** Over training subsamples, the synthetic n = 1,000 win over penalty 0 sits
   on the 2 SE boundary.
 - **Cut for compute:** one network per arm (the package default is 5 seeds x 3 bags), sizes up to 2,000 (4,000

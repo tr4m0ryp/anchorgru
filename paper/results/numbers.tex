@@ -4209,6 +4209,10 @@
 % physionet2012_wd10.json settings.test_positive_rate, %
 \newcommand{\nPhysWdPosRate}{14.6}
 
+% every size of every result file
+\newcommand{\nPriorSettings}{13}
+% settings where ours does not lose to its prior by 2 SE
+\newcommand{\nPriorNoLoss}{12}
 % sum of wall_seconds_this_call over the six result files / 60
 \newcommand{\nWallTotalMin}{57}
 % bench/common/arms.py SWEEP = (0, 0.1, 0.3, 1, 3, 10)
@@ -4227,6 +4231,8 @@
 \newcommand{\nNetLr}{8\times10^{-3}}
 % bench/common/arms.py NET weight_decay
 \newcommand{\nNetWd}{0.2}
+% OpenML 151 test rows (3 folds x 4,000): log-loss of the constant test base rate 0.4023
+\newcommand{\nElecConstLL}{0.6739}
 % bench/results/SCOPE.md cuts: first elec2 LightGBM run (12 raw lags), n 500 / 2,000
 \newcommand{\nElecOldGbmLL}{0.563 at 500 and 0.527 at 2,000}
 % composed of the SynM macros above (synthetic.json sizes[1000])
@@ -4322,6 +4328,6 @@
 % bench/results/SCOPE.md: 3 repeats per size
 \newcommand{\nSplitCount}{3}
 % git rev-parse --short HEAD of the anchorgru repository
-\newcommand{\nCommit}{\texttt{4ba5111}}
+\newcommand{\nCommit}{\texttt{a641899}}
 % PRIVATE_LINE.txt (the one permitted sentence on the proprietary task)
 \newcommand{\nPrivateLine}{On a proprietary binary forecasting task (about a thousand held-out cases), the unpenalised residual variant degraded its prior's held-out log-loss by 0.0060 nats (paired block-bootstrap SE 0.0030). The output-space penalty removed that degradation (penalised model minus prior: -0.0001 nats, SE 0.0007), halved the seed-to-seed spread of predicted probabilities (0.008 to 0.004) and lowered ECE from 0.023 to 0.014. The residual did not beat the prior by a significant margin on that task.}

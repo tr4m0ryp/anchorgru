@@ -178,6 +178,10 @@ def main():
         if "test_positive_rate" in st:
             o.add(f"{tag}PosRate", f(100 * st["test_positive_rate"], 1), f"{ds}.json settings.test_positive_rate, %")
     o.lines.append("")
+    rows = [s["diff_log_loss_ours_minus_arm"]["prior"] for ds in DATASETS
+            for s in json.loads((a.src / f"{ds}.json").read_text())["sizes"].values()]
+    o.add("PriorSettings", len(rows), "every size of every result file")
+    o.add("PriorNoLoss", sum(not d["loses_by_2se"] for d in rows), "settings where ours does not lose to its prior by 2 SE")
     o.add("WallTotalMin", f(total / 60, 0), "sum of wall_seconds_this_call over the six result files / 60")
     o.add("SweepCount", 6, "bench/common/arms.py SWEEP = (0, 0.1, 0.3, 1, 3, 10)")
     o.add("AblationCount", 4, "bench/common/arms.py ablations: no cap, random head init, no gate, wd x10 at penalty 0")
@@ -187,6 +191,7 @@ def main():
     o.add("NetCap", "2.5", "bench/common/arms.py NET cap")
     o.add("NetLr", "8\\times10^{-3}", "bench/common/arms.py NET lr")
     o.add("NetWd", "0.2", "bench/common/arms.py NET weight_decay")
+    o.add("ElecConstLL", "0.6739", "OpenML 151 test rows (3 folds x 4,000): log-loss of the constant test base rate 0.4023")
     o.add("ElecOldGbmLL", "0.563 at 500 and 0.527 at 2,000", "bench/results/SCOPE.md cuts: first elec2 LightGBM run (12 raw lags), n 500 / 2,000")
     o.add("Headline", "On the synthetic task at $n=1{,}000$ the anchored model lowers held-out log-loss by "
           "\\nSynMDabsPrior{} nats (SE \\nSynMSEthreePrior) against the prior, \\nSynMDabsLzero{} "
