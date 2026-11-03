@@ -1,0 +1,11 @@
+.venv/
+_data/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+*.jsonl
+*.pkl
+*.sha256

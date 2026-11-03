@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "anchorgru"
+version = "0.1.0"
+description = "A recurrent network that learns a bounded, penalised log-odds correction on top of a prior probability."
+requires-python = ">=3.10"
+license = {text = "PolyForm-Noncommercial-1.0.0"}
+authors = [{name = "Moussa Ouallaf"}]
+dependencies = [
+    "numpy>=1.24",
+    "torch>=2.1",
+    "scikit-learn>=1.4",
+    "joblib>=1.2",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+[project.optional-dependencies]
+windows = ["pandas>=1.5"]
+bench = ["pandas>=1.5", "lightgbm>=4.0"]
+dev = ["pytest>=7", "pandas>=1.5", "scipy>=1.10"]
+
+[tool.setuptools.packages.find]
+include = ["anchorgru*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
