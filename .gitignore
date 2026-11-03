@@ -11,3 +11,4 @@ dist/
 *.sha256
 bench/results/raw/
 bench/logs/
+paper/.harvest/
