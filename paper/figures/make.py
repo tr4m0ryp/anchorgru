@@ -33,7 +33,7 @@ ARMS = [("prior", "prior alone"), ("anch_l0", "penalty 0"), ("unanchored", "unan
         ("gbm_init", "LightGBM from prior")]
 SWEEP = [0.0, 0.1, 0.3, 1.0, 3.0, 10.0]
 
-plt.rcParams.update({"font.size": 8, "axes.titlesize": 8, "axes.labelsize": 8, "legend.fontsize": 7,
+plt.rcParams.update({"pdf.compression": 0, "font.size": 8, "axes.titlesize": 8, "axes.labelsize": 8, "legend.fontsize": 7,
                      "xtick.labelsize": 7, "ytick.labelsize": 7, "pdf.fonttype": 42, "axes.spines.top": False,
                      "axes.spines.right": False})
 

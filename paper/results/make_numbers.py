@@ -78,6 +78,7 @@ def per_size(o: Out, ds: str, tag: str, size: str, s: dict, src: Path):
         o.add(f"{p}D{a}", f(dd["mean"], 4, True), f"{j}.diff_log_loss_ours_minus_arm.{arm}.mean (ours - arm, nats)")
         o.add(f"{p}Dthree{a}", f(dd["mean"], 3, True), "same, 3 decimals")
         o.add(f"{p}Dabs{a}", f(abs(dd["mean"]), 3), "same, absolute, 3 decimals")
+        o.add(f"{p}Dabsfour{a}", f(abs(dd["mean"]), 4), "same, absolute, 4 decimals")
         o.add(f"{p}SE{a}", f(dd["se"], 4), f"{j}.diff_log_loss_ours_minus_arm.{arm}.se ({dd['se_method']})")
         o.add(f"{p}SEthree{a}", f(dd["se"], 3), "same, 3 decimals")
         z = dd["mean"] / dd["se"] if dd["se"] > 0 else 0.0
@@ -137,6 +138,9 @@ def settings(o: Out, src: Path):
     o.add("GbmMaxRounds", "1{,}000", "bench/common/arms.py _gbm n_estimators cap")
     o.add("GbmStop", 50, "bench/common/arms.py _gbm early_stopping")
     o.add("Workers", 2, "bench/results/SCOPE.md: 2 worker processes of 1 thread")
+    o.add("SweepList", ", ".join(f"{x:g}" for x in (0, 0.1, 0.3, 1, 3, 10)), "bench/common/arms.py SWEEP")
+    o.add("WdMult", 10, "bench/common/arms.py abl_wd10_l0 and physionet2012_wd10: weight decay x10")
+    o.add("SpreadLam", 1, "bench/common/runner.py _spread: penalty 1 against penalty 0")
     o.add("SplitCount", 3, "bench/results/SCOPE.md: 3 repeats per size")
     try:
         c = subprocess.run(["git", "-C", str(src), "rev-parse", "--short", "HEAD"], capture_output=True, text=True,
@@ -183,7 +187,7 @@ def main():
     o.add("NetCap", "2.5", "bench/common/arms.py NET cap")
     o.add("NetLr", "8\\times10^{-3}", "bench/common/arms.py NET lr")
     o.add("NetWd", "0.2", "bench/common/arms.py NET weight_decay")
-    o.add("ElecOldGbmLL", "0.563 / 0.527", "bench/results/SCOPE.md cuts: first elec2 LightGBM run (12 raw lags), n 500 / 2,000")
+    o.add("ElecOldGbmLL", "0.563 at 500 and 0.527 at 2,000", "bench/results/SCOPE.md cuts: first elec2 LightGBM run (12 raw lags), n 500 / 2,000")
     o.add("Headline", "On the synthetic task at $n=1{,}000$ the anchored model lowers held-out log-loss by "
           "\\nSynMDabsPrior{} nats (SE \\nSynMSEthreePrior) against the prior, \\nSynMDabsLzero{} "
           "(SE \\nSynMSEthreeLzero) against the unpenalised residual, \\nSynMDabsUnanch{} (SE \\nSynMSEthreeUnanch) "
