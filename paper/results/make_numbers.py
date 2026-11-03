@@ -99,6 +99,53 @@ def per_size(o: Out, ds: str, tag: str, size: str, s: dict, src: Path):
     o.add(f"{p}Seconds", f(sum(s["seconds"]) / len(s["seconds"]), 0), f"{j}.seconds, mean per split (all arms)")
 
 
+def settings(o: Out, src: Path):
+    """Design constants the prose cites (training sizes, rules, encodings), each with the file that fixes it."""
+    import subprocess
+    for n, nm in SIZES.items():
+        o.add(f"Size{nm}", thousands(n), "bench/common/runner.py training sizes (learning curve)")
+    rd = {d: json.loads((src / f"{d}.json").read_text())["settings"] for d in ("synthetic", "elec2", "physionet2012")}
+    for d, tag in (("synthetic", "Syn"), ("elec2", "Elec"), ("physionet2012", "Phys")):
+        for size, ep in rd[d]["epochs_by_size"].items():
+            o.add(f"{tag}{SIZES[int(size)]}Epochs", ep, f"{d}.json settings.epochs_by_size[{size}]")
+    o.add("Batch", rd["physionet2012"]["batch_size"], "physionet2012.json settings.batch_size")
+    o.add("Stride", rd["physionet2012"]["stride"], "physionet2012.json settings.stride")
+    o.add("PhysPool", thousands(rd["physionet2012"]["n_pool"]), "physionet2012.json settings.n_pool")
+    o.add("PhysHours", 48, "bench/results/SCOPE.md: 48 h hourly grid")
+    o.add("PhysVars", 36, "bench/results/SCOPE.md: 36 variables")
+    o.add("ElecWindow", rd["elec2"]["window"], "elec2.json settings.window (half-hour steps)")
+    o.add("ElecCols", 5, "bench/results/SCOPE.md: last 48 half-hours of 5 columns")
+    o.add("ElecBlock", rd["elec2"]["embargo_rows"], "elec2.json settings.embargo_rows (= bootstrap block, one week)")
+    o.add("ElecPriorRows", thousands(rd["elec2"]["prior_rows"]), "elec2.json settings.prior_rows")
+    o.add("ElecTestLen", thousands(rd["elec2"]["test_len"]), "elec2.json settings.test_len (per fold)")
+    o.add("BootDraws", "2{,}000", "results/paired.py block_se draws (= benchmark runner)")
+    o.add("SynChannels", 3, "bench/results/SCOPE.md: 3 random-walk channels")
+    o.add("SynSteps", 24, "bench/results/SCOPE.md: 24 steps")
+    o.add("SynMissPct", 20, "bench/results/SCOPE.md: 20 % missing")
+    o.add("KeepSE", 2, "bench/results/SCOPE.md keep rule: more than 2 SE")
+    o.add("InnerPct", 20, "bench/common/arms.py inner holdout, 80 / 20")
+    o.add("InnerTrainPct", 80, "bench/common/arms.py inner holdout, 80 / 20")
+    o.add("MinObs", "0.25", "anchorgru/windows/encode.py min_observed default")
+    o.add("DefSeeds", 5, "anchorgru/net/train.py default n_seeds")
+    o.add("DefBags", 3, "anchorgru/net/train.py default n_bags")
+    o.add("DefCap", "2.0", "anchorgru/net/train.py TrainConfig cap default")
+    o.add("CIpct", 95, "figures/make.py: +-1.96 SE")
+    o.add("CIz", "1.96", "figures/make.py: +-1.96 SE")
+    o.add("RelBins", 15, "figures/make.py fig_reliability bins")
+    o.add("GbmLr", "0.05", "bench/common/arms.py _gbm learning_rate")
+    o.add("GbmLeaves", 15, "bench/common/arms.py _gbm num_leaves")
+    o.add("GbmMaxRounds", "1{,}000", "bench/common/arms.py _gbm n_estimators cap")
+    o.add("GbmStop", 50, "bench/common/arms.py _gbm early_stopping")
+    o.add("Workers", 2, "bench/results/SCOPE.md: 2 worker processes of 1 thread")
+    o.add("SplitCount", 3, "bench/results/SCOPE.md: 3 repeats per size")
+    try:
+        c = subprocess.run(["git", "-C", str(src), "rev-parse", "--short", "HEAD"], capture_output=True, text=True,
+                           check=True).stdout.strip()
+    except Exception:  # noqa: BLE001
+        c = "unknown"
+    o.add("Commit", f"\\texttt{{{c}}}", "git rev-parse --short HEAD of the anchorgru repository")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--src", type=Path, default=SRC, help="directory holding <dataset>.json and raw/")
