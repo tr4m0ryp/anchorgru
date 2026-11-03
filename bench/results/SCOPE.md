@@ -64,8 +64,8 @@ against penalty 0 (n = 500: 1.99 SE; n = 2,000: the inner holdout chose penalty 
 
 **Penalty 0 versus the penalty (claim a, no harm):** the unpenalised residual saturates its cap on 44-90 % of
 training rows at the smallest n and its seed spread of p is 6-10x the penalised one (PhysioNet 0.099 vs 0.014,
-elec2 0.035 vs 0.006, synthetic 0.157 vs 0.020, V2 0.092 vs 0.010). On PhysioNet and the synthetic task penalty 0
-is worse than the prior itself (PhysioNet +0.11 / +0.08 nats); where the sequence is very informative (elec2,
+elec2 0.035 vs 0.006, synthetic 0.157 vs 0.020, V2 0.092 vs 0.010). On PhysioNet and at synthetic n = 250 penalty 0
+is worse than the prior itself (PhysioNet +0.11 / +0.08 nats, synthetic +0.23); where the sequence is very informative (elec2,
 synthetic n = 4,000) penalty 0 is the best setting and the inner holdout picks it.
 
 **Ablations of ours:** no cap, no gate and random head init change log-loss by at most 0.0015 on PhysioNet and at

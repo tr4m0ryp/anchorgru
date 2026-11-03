@@ -72,7 +72,7 @@ fix is a residual on the prior's log-odds, as in residual policy learning
 \citep{silver2018residual,johannink2019residual} and residual physics \citep{zeng2020tossingbot}. That alone is
 insufficient: the same residual without a penalty scores \nPhysDLzeroLL, still worse than the prior. Weight decay at
 our setting does not bound it either: Adam scales each step by the gradient's own size, so with decay \nNetWd{} the head still sits at its bound
-on \nPhysDLzeroAtCap\% of training rows. We want a correction that stays near the prior unless the data argue
+on a mean \nPhysDLzeroAtCap\% of training rows. We want a correction that stays near the prior unless the data argue
 otherwise.
 
 \section{The change}
@@ -172,8 +172,8 @@ standard error (SE), $\bar d = \frac{1}{n_{\text{test}}} \sum_{i} (\ell_i^{\text
 $\operatorname{SE} = s_d / \sqrt{n_{\text{test}}}$, where $s_d$ is the standard deviation of the per-example differences, each test example first averaged over the
 \nSplitCount{} training subsamples. Negative favours ours. Rows of elec2 depend on their neighbours, so there the SE
 comes from a moving-block bootstrap (resampling contiguous runs of rows) \citep{kunsch1989bootstrap} with one-week
-blocks of \nElecBlock{} rows and \nBootDraws{} draws. We call a difference a win only beyond \nKeepSE{} SE, and a
-tie inside one SE.
+blocks of \nElecBlock{} rows and \nBootDraws{} draws. We call a difference a win or a loss only beyond \nKeepSE{} SE,
+and a tie otherwise.
 
 \section{Results}
 \label{sec:results}
@@ -255,14 +255,14 @@ The method grew out of a private study. \nPrivateLine
 \label{sec:limits}
 
 The complete win holds in a single setting. On PhysioNet the boosted trees remain ahead, and none of the
-\nVariantCount{} variants we ran to close that gap succeeded (Appendix~\ref{app:extra}). The most useful one,
+\nVariantCount{} variants we ran to close that gap beat them (V2 ties them with a tree prior; Appendix~\ref{app:extra}). The most useful one,
 \nWdMult{} times the weight decay, improves ours
 (\nPhysWdMMOursLL{} at \nSizeMM) but helps the unanchored GRU more (\nPhysWdMMUnanchLL): cap and penalty hold the
 model near a weak anchor. With a prior that cannot see the second day, ours is worse than the prior at
 $n = \nSizeD$ (\nPhysStrongDDPrior, SE \nPhysStrongDSEPrior); nowhere else does it lose to its prior. The large
 elec2 gain rests on a weak prior and on the residual, not the penalty, and plain heavy weight decay is a strong
-competitor (Appendix~\ref{app:extra}). Penalising the head's pre-activation instead of the offset, a variant we
-tested separately, also steadied the heads but did not beat the plain bounded residual on PhysioNet.
+competitor (Appendix~\ref{app:extra}). Penalising the head's pre-activation instead, a variant we tested separately,
+also steadied the heads; its pre-registered gain over the plain residual failed.
 
 These variants are post hoc, chosen after the PhysioNet result. The arms, the \nSweepCount-value sweep, the
 \nAblationCount{} ablations, the sizes and the keep rule were fixed before any run. One fix came after a run: the

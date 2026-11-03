@@ -204,8 +204,8 @@ training rows. Moving $`\lambda`$ from 0 to 1 cuts the seed-to-seed spread of pr
 ## Limits
 
 - **The full win holds in one setting** (synthetic n = 1,000). On PhysioNet LightGBM from the prior stays ahead by
-  0.047 and 0.073 nats; three variants to close the gap (a strong prior, a boosted-tree prior, 10x weight decay) did
-  not. Every variant is in [`bench/results/SCOPE.md`](bench/results/SCOPE.md).
+  0.047 and 0.073 nats; none of three variants (a strong prior, a boosted-tree prior, 10x weight decay) beat it; the
+  boosted-tree prior ties it only because that prior is itself LightGBM. Every variant is in [`bench/results/SCOPE.md`](bench/results/SCOPE.md).
 - **With 10x weight decay the unanchored GRU beats ours on PhysioNet 2,000** (0.3277 vs 0.3571): cap and penalty hold
   the model near a weak prior.
 - **One small loss to the prior:** with a prior that cannot see the second day, ours is worse at n = 500 by 0.0017
@@ -213,7 +213,8 @@ training rows. Moving $`\lambda`$ from 0 to 1 cuts the seed-to-seed spread of pr
 - **The elec2 gain rests on a weak prior and on the residual, not the penalty.** Penalty 0 with 10x weight decay,
   a pre-registered ablation, beats ours on 4 of 7 main rows (synthetic 250 and 1,000, elec2 500, PhysioNet 2,000).
 - **Penalising the pre-activation instead:** a variant we tested separately (the head's pre-activation penalised
-  instead of the offset) also steadied the heads but did not beat the plain bounded residual on PhysioNet.
+  instead of the offset) also steadied the heads, but its pre-registered gain over the plain bounded residual failed
+  on both of its datasets; it beat the plain residual only under a strong prior chosen after the fact.
 - **Three tasks only.** Nothing here is claimed beyond synthetic, elec2 and PhysioNet 2012.
 - **The SE covers test-sample noise only.** Over training subsamples, the synthetic n = 1,000 win over penalty 0 sits
   on the 2 SE boundary.
@@ -224,13 +225,13 @@ training rows. Moving $`\lambda`$ from 0 to 1 cuts the seed-to-seed spread of pr
 ## Reproduce
 
 Python 3.12.3, PyTorch 2.15.0 (CPU), NumPy 2.5.4, scikit-learn 1.9.1, LightGBM 4.7.0; 2 worker processes of 1 thread,
-59 minutes for the whole benchmark. Data download to `$ANCHORGRU_DATA` (default `../_data`, outside the repository).
+57 minutes of run time for the whole benchmark (59 wall-clock). Data download to `$ANCHORGRU_DATA` (default `../_data`, outside the repository).
 
 ```bash
 git clone https://github.com/tr4m0ryp/anchorgru && cd anchorgru
 pip install -e ".[dev,bench]" matplotlib
 pytest                                     # 175 tests: the lemma, the zero start, no lookahead, the estimator
-python examples/quickstart.py              # one-minute synthetic demo with a penalty sweep
+python examples/quickstart.py              # synthetic demo with a penalty sweep, a few minutes on CPU
 bash bench/run_all.sh                      # synthetic, elec2, PhysioNet 2012 and three variants
 PYTHONPATH=. python bench/report.py        # every table
 python paper/results/make_numbers.py       # every number in the paper
