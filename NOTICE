@@ -1,0 +1,21 @@
+anchorgru
+Copyright (c) 2026 Keygraph, Inc.
+
+Required Notice: Copyright (c) 2026 Keygraph, Inc.
+Required Notice: anchorgru - https://github.com/tr4m0ryp/anchorgru
+
+This software is licensed under the PolyForm Noncommercial License 1.0.0
+(see LICENSE). Free for noncommercial use. Any redistribution must retain
+this NOTICE and the Required Notice lines above, and credit
+"anchorgru by Keygraph, Inc."
+
+Selling this software, bundling it into a paid product, or operating it as
+a paid or hosted service requires a commercial license.
+Commercial licensing enquiries: TODO (contact via the repository issue tracker).
+
+"Keygraph" and associated marks are reserved; no trademark license is
+granted under these terms.
+
+The paper template paper/neurips_2026.sty is the NeurIPS conference style
+file, distributed by the NeurIPS Foundation under its own terms, not under
+the PolyForm license above.
