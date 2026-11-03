@@ -1,0 +1,8 @@
+.harvest/
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+results/__pycache__/
+main.pdf
