@@ -4,7 +4,7 @@
   <a href="https://x.com/tr4m0ryp"><img alt="Follow on X" src="https://img.shields.io/badge/X-@tr4m0ryp-000000?logo=x&logoColor=white"></a>
 </p>
 <p align="center">
-  <a href="paper/anchorgru.pdf"><img alt="Paper PDF" src="https://img.shields.io/badge/Paper-PDF-b31b1b?logo=adobeacrobatreader&logoColor=white"></a>
+  <a href="paper/anchorgru.pdf"><img alt="Technical note PDF" src="https://img.shields.io/badge/Technical%20note-PDF-b31b1b?logo=adobeacrobatreader&logoColor=white"></a>
 </p>
 
 A small GRU that only adds a bounded, penalised log-odds correction to an existing probability **beat LightGBM
@@ -111,7 +111,7 @@ $`\mathbb{E}[\mathrm{BCE}(y, \sigma(b + r))] + \lambda' r^2`$ solves
 
 so (i) $`r^{*} = 0`$ if and only if $`\sigma(b) = \mu`$, (ii) $`r^{*}`$ has the sign of $`\mathrm{logit}\mu - b`$,
 and (iii) $`|r^{*}| < |\mathrm{logit}\mu - b|`$ otherwise. The penalised correction moves toward the calibrated
-one and stops short of it (Lemma 1, proof in the [paper](paper/anchorgru.pdf), Appendix A). This is a population
+one and stops short of it (Lemma 1, proof in the [technical note](paper/anchorgru.pdf), Appendix A). This is a population
 statement, not a guarantee that a fitted model never does worse than its prior. $`\lambda`$ is chosen from
 $`\{0, 0.1, 0.3, 1, 3, 10\}`$ on an inner 80 / 20 holdout (ties go to the larger value), then the model is refit on
 all training rows.
@@ -234,19 +234,21 @@ pytest                                     # 175 tests: the lemma, the zero star
 python examples/quickstart.py              # synthetic demo with a penalty sweep, a few minutes on CPU
 bash bench/run_all.sh                      # synthetic, elec2, PhysioNet 2012 and three variants
 PYTHONPATH=. python bench/report.py        # every table
-python paper/results/make_numbers.py       # every number in the paper
+python paper/results/make_numbers.py       # every number in the note
 python paper/figures/make.py               # the figures
 ```
 
 ## Cite
 
 ```bibtex
-@misc{ouallaf2026anchorgru,
-  author       = {Ouallaf, Moussa},
-  title        = {Anchored residual sequence models: a bounded, penalised correction on top of a prior},
-  year         = {2026},
-  howpublished = {\url{https://github.com/tr4m0ryp/anchorgru}},
-  note         = {Software: anchorgru 0.1.0}
+@techreport{ouallaf2026anchorgru,
+  author      = {Ouallaf, Moussa},
+  title       = {Anchored residual sequence models: a bounded, penalised correction on top of a prior},
+  institution = {Husimi.ai},
+  type        = {Technical note},
+  year        = {2026},
+  url         = {https://github.com/tr4m0ryp/anchorgru},
+  note        = {Preprint, not peer-reviewed. Software: anchorgru 0.1.0}
 }
 ```
 

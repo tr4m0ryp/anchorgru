@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-message: "If you use anchorgru, please cite the paper in paper/anchorgru.pdf."
+message: "If you use anchorgru, please cite the technical note in paper/anchorgru.pdf."
 title: "anchorgru"
 version: 0.1.0
 date-released: 2026-11-04
@@ -11,7 +11,9 @@ authors:
     affiliation: Husimi.ai
     email: moussa@husimi.ai
 preferred-citation:
-  type: article
+  type: report
+  institution:
+    name: Husimi.ai
   title: "Anchored residual sequence models: a bounded, penalised correction on top of a prior"
   authors:
     - family-names: Ouallaf

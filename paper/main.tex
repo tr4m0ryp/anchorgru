@@ -43,6 +43,12 @@
 
 \maketitle
 
+\vspace{-1.6em}
+\begin{center}
+{\small Technical note (preprint, not peer-reviewed)}
+\end{center}
+\vspace{0.2em}
+
 \begin{abstract}
 A prior probability for a binary outcome often exists, and a recurrent network trained freely on each example's
 history can end up worse than it. We add the network's output to the prior's log-odds as a bounded offset whose
@@ -274,6 +280,18 @@ $n = \nSizeM$ against penalty 0 grows from \nSynMSELzero{} to \nSynMSEsplitLzero
 bootstrap resamples. We dropped full-size training (compute), a GRU-D arm (library unavailable), an ablation without
 the mask channels and a weather task (no data access). We claim nothing beyond the three tasks tested, no finite-sample
 guarantee, no edge over boosted trees on summaries and no novelty for the zero start or the cap.
+
+\section*{Generative AI acknowledgement}
+Generative AI is becoming part of how research is designed, carried out and written up. Readers should know where
+it was used, so we state it plainly. Generative AI was used throughout this project: to write and review code, to
+run and check the experiments, and to draft and revise this note. We used only Anthropic's Claude models. Every
+result reported here comes from code in the accompanying repository and can be reproduced from it.
+
+Statements like this one are still free text, and no two papers word them alike. We are developing a general
+checklist for reporting generative AI use, in the spirit of the CRediT taxonomy~\citep{brand2015credit}, which lists
+each author's contribution through a fixed set of roles. It will cover the ways AI enters a project, from coding
+assistance and brainstorming to fully autonomous execution, so that researchers can state their use in a short,
+comparable form. Once published, the checklist will be added to this section.
 
 \bibliographystyle{plainnat}
 \bibliography{refs}
