@@ -7,7 +7,7 @@ name = "anchorgru"
 version = "0.1.0"
 description = "A recurrent network that learns a bounded, penalised log-odds correction on top of a prior probability."
 requires-python = ">=3.10"
-license = {text = "PolyForm-Noncommercial-1.0.0"}
+license = {text = "Apache-2.0"}
 authors = [{name = "Moussa Ouallaf"}]
 dependencies = [
     "numpy>=1.24",

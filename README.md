@@ -252,13 +252,5 @@ python paper/figures/make.py               # the figures
 
 ## License
 
-anchorgru is **source-available**, licensed under the [PolyForm Noncommercial License 1.0.0](./LICENSE), **not** an
-OSI open-source license.
-
-- **You may** use, modify, fork, and share anchorgru freely for any **noncommercial** purpose, as long as you keep
-  the copyright and `Required Notice:` lines (see [`NOTICE`](./NOTICE)) and credit *"anchorgru by Keygraph, Inc."*
-- **You may not** sell it, bundle it into a paid product, or run it as a paid/hosted service **without a commercial
-  license**.
-- **Exception:** `paper/neurips_2026.sty` is the NeurIPS style file and stays under its own terms.
-
-Copyright (c) 2026 Keygraph, Inc. Commercial licensing enquiries: see [`NOTICE`](./NOTICE).
+Apache License 2.0: free to use, modify and redistribute, including commercially. See [LICENSE](LICENSE)
+and [NOTICE](NOTICE). `paper/neurips_2026.sty` is the NeurIPS style file and stays under its own terms. Copyright 2026 Moussa Ouallaf, Husimi.ai (moussa@husimi.ai).

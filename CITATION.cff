@@ -3,7 +3,7 @@ message: "If you use anchorgru, please cite the paper in paper/anchorgru.pdf."
 title: "anchorgru"
 version: 0.1.0
 date-released: 2026-11-04
-license: PolyForm-Noncommercial-1.0.0
+license: Apache-2.0
 repository-code: "https://github.com/tr4m0ryp/anchorgru"
 authors:
   - family-names: Ouallaf
