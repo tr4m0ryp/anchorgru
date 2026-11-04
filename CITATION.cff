@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If you use anchorgru, please cite the paper in paper/anchorgru.pdf."
+title: "anchorgru"
+version: 0.1.0
+date-released: 2026-11-04
+license: PolyForm-Noncommercial-1.0.0
+repository-code: "https://github.com/tr4m0ryp/anchorgru"
+authors:
+  - family-names: Ouallaf
+    given-names: Moussa
+    affiliation: Husimi.ai
+    email: moussa@husimi.ai
+preferred-citation:
+  type: article
+  title: "Anchored residual sequence models: a bounded, penalised correction on top of a prior"
+  authors:
+    - family-names: Ouallaf
+      given-names: Moussa
+      affiliation: Husimi.ai
+      email: moussa@husimi.ai
+  year: 2026
+  url: "https://github.com/tr4m0ryp/anchorgru/blob/main/paper/anchorgru.pdf"

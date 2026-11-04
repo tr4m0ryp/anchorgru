@@ -83,15 +83,15 @@ flowchart LR
 For example $`i`$ with prior probability $`q_i`$, label $`y_i \in \{0, 1\}`$ and last GRU state $`h_{i,T}`$:
 
 ```math
-b_i = \operatorname{logit} q_i, \qquad
+b_i = \mathrm{logit} q_i, \qquad
 r_i = c \tanh\!\left(w^{\top} h_{i,T} + \beta\right) v_i, \qquad
 p_i = \sigma\!\left(b_i + r_i\right)
 ```
 
 ```math
-\mathcal{L} = \frac{1}{n}\sum_{i=1}^{n} \operatorname{BCE}\!\left(y_i, p_i\right)
+\mathcal{L} = \frac{1}{n}\sum_{i=1}^{n} \mathrm{BCE}\!\left(y_i, p_i\right)
   + \lambda \, \frac{\sum_{i} r_i^{2}}{\sum_{i} v_i},
-\qquad \operatorname{BCE}(y,p) = -y\log p - (1-y)\log(1-p)
+\qquad \mathrm{BCE}(y,p) = -y\log p - (1-y)\log(1-p)
 ```
 
 $`w`$ and $`\beta`$ start at 0, so the untrained model equals the prior exactly (the ReZero idea applied to a
@@ -103,14 +103,14 @@ plain cross-entropy and training matches an unpenalised loop bit for bit (tested
 The penalty acts on each example's offset $`r_i`$, not on the weights (where weight decay and L2-SP act). Read as a
 maximum a posteriori fit it is a zero-mean Gaussian prior on the correction itself. At the population level, with
 $`\mu = \Pr(y = 1 \mid \text{input})`$ and $`\lambda' = \lambda n / \sum_i v_i`$, the minimiser of
-$`\mathbb{E}[\operatorname{BCE}(y, \sigma(b + r))] + \lambda' r^2`$ solves
+$`\mathbb{E}[\mathrm{BCE}(y, \sigma(b + r))] + \lambda' r^2`$ solves
 
 ```math
 \sigma(b + r^{*}) + 2\lambda' r^{*} = \mu
 ```
 
-so (i) $`r^{*} = 0`$ if and only if $`\sigma(b) = \mu`$, (ii) $`r^{*}`$ has the sign of $`\operatorname{logit}\mu - b`$,
-and (iii) $`|r^{*}| < |\operatorname{logit}\mu - b|`$ otherwise. The penalised correction moves toward the calibrated
+so (i) $`r^{*} = 0`$ if and only if $`\sigma(b) = \mu`$, (ii) $`r^{*}`$ has the sign of $`\mathrm{logit}\mu - b`$,
+and (iii) $`|r^{*}| < |\mathrm{logit}\mu - b|`$ otherwise. The penalised correction moves toward the calibrated
 one and stops short of it (Lemma 1, proof in the [paper](paper/anchorgru.pdf), Appendix A). This is a population
 statement, not a guarantee that a fitted model never does worse than its prior. $`\lambda`$ is chosen from
 $`\{0, 0.1, 0.3, 1, 3, 10\}`$ on an inner 80 / 20 holdout (ties go to the larger value), then the model is refit on
@@ -137,7 +137,7 @@ summaries on PhysioNet, the network's own flattened steps elsewhere). The paired
 
 ```math
 \bar d = \frac{1}{n_{\text{test}}} \sum_{i} \left(\ell_i^{\text{ours}} - \ell_i^{a}\right), \qquad
-\operatorname{SE} = s_d / \sqrt{n_{\text{test}}}
+\mathrm{SE} = s_d / \sqrt{n_{\text{test}}}
 ```
 
 with each test example first averaged over 3 training subsamples; on elec2 the SE comes from a moving-block bootstrap
